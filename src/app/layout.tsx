@@ -3,6 +3,7 @@ import { Geist_Mono, Kanit } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "./globals.css";
+import { AppProviders } from "./providers";
 
 const kanit = Kanit({
   variable: "--font-kanit",
@@ -30,7 +31,9 @@ export default function RootLayout({
       lang="en"
       className={`${kanit.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }
