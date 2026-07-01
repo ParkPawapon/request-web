@@ -13,7 +13,10 @@ type ErrorPageProps = Readonly<{
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      console.error(error);
+      console.error("Route error", {
+        digest: error.digest,
+        name: error.name,
+      });
     }
   }, [error]);
 

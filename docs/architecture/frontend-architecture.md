@@ -50,6 +50,12 @@ Components do not call `fetch` directly. Feature services use
 `src/shared/api/client`, which centralizes base URL handling, timeout, auth token
 injection hooks, and normalized errors.
 
+All production API paths are centralized in `src/shared/api/endpoints` and use
+the new `/v1/...` contract. Legacy `/api/v1/...` values from existing backend
+payloads are normalized at the shared API boundary before they reach UI anchors
+or request calls. Components must not concatenate API URLs or accept absolute
+API URLs from server payloads.
+
 API responses use `ApiSuccess`, `ApiPaginatedSuccess`, `ApiErrorPayload`,
 `ApiId`, `ApiNullable`, and pagination types from `src/shared/api/types`.
 
@@ -78,3 +84,8 @@ environment variables. Never expose secrets with `NEXT_PUBLIC_`.
 
 User-facing errors must not leak internal detail. Developer detail can appear
 only in development mode.
+
+`next.config.ts` owns browser security headers for the application shell:
+Content Security Policy, frame denial, content-type sniffing protection,
+referrer policy, and a least-privilege permissions policy. Redirect values from
+API/auth flows must pass through `src/shared/navigation`.

@@ -13,6 +13,7 @@ import {
   loginWithDevAccount,
   type DevAuthOption,
 } from "@/entities/session";
+import { normalizeInternalRedirect } from "@/shared/navigation";
 
 const ROLE_LABELS = {
   lecturer: "อาจารย์",
@@ -113,7 +114,7 @@ export function LoginPage() {
         timer: 900,
         title: "เข้าสู่ระบบตัวจำลองสำเร็จ",
       });
-      router.replace(data.redirect || "/student");
+      router.replace(normalizeInternalRedirect(data.redirect, "/student"));
     } catch (loginError) {
       const message =
         readErrorMessage(loginError) || "เข้าสู่ระบบแบบตัวจำลองไม่สำเร็จ";

@@ -1,6 +1,8 @@
 export const API_V1_PREFIX = "/v1";
+export const LEGACY_API_V1_PREFIX = "/api/v1";
 
 export type ApiPath = `/${string}`;
+export type SafeApiPath = ApiPath | "#";
 
 function v1(path: string): ApiPath {
   const normalized = path.startsWith("/") ? path : `/${path}`;
@@ -82,3 +84,31 @@ export const apiEndpoints = {
     listMy: v1("/petitions/my"),
   },
 } as const;
+
+export function normalizeApiPath(path: string): SafeApiPath {
+  const trimmed = path.trim();
+
+  if (
+    trimmed.length === 0 ||
+    trimmed === "#" ||
+    trimmed.startsWith("//") ||
+    /^[a-z][a-z\d+.-]*:/iu.test(trimmed) ||
+    /[\\\u0000-\u001F\u007F]/u.test(trimmed)
+  ) {
+    return "#";
+  }
+
+  const normalized = trimmed.startsWith(LEGACY_API_V1_PREFIX)
+    ? `${API_V1_PREFIX}${trimmed.slice(LEGACY_API_V1_PREFIX.length)}`
+    : trimmed;
+
+  if (
+    normalized === API_V1_PREFIX ||
+    normalized.startsWith(`${API_V1_PREFIX}/`) ||
+    normalized.startsWith(`${API_V1_PREFIX}?`)
+  ) {
+    return normalized as ApiPath;
+  }
+
+  return "#";
+}
