@@ -1,17 +1,26 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/utils/render";
 
 import Home from "./page";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("Home", () => {
-  it("renders the foundation shell", () => {
+  it("renders the migrated login shell", () => {
     renderWithProviders(<Home />);
 
     expect(
-      screen.getByRole("heading", { name: "Request Web" }),
+      screen.getByRole("heading", { name: /ระบบยื่นคำร้อง/u }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Next.js App Router")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /เข้าสู่ระบบด้วย KMUTT Account/u }),
+    ).toBeInTheDocument();
   });
 });
