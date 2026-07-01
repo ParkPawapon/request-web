@@ -12,6 +12,8 @@ export type AccessTokenProvider = () =>
 
 export type ApiClientOptions = Readonly<{
   baseUrl?: string | undefined;
+  cache?: RequestCache | undefined;
+  credentials?: RequestCredentials | undefined;
   defaultHeaders?: HeadersInit | undefined;
   fetcher?: typeof fetch | undefined;
   getAccessToken?: AccessTokenProvider | undefined;
@@ -30,6 +32,8 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 
 export class ApiClient {
   private readonly baseUrl: string;
+  private readonly cache: RequestCache;
+  private readonly credentials: RequestCredentials;
   private readonly defaultHeaders: HeadersInit | undefined;
   private readonly fetcher: typeof fetch;
   private readonly getAccessToken: AccessTokenProvider | undefined;
@@ -37,6 +41,8 @@ export class ApiClient {
 
   constructor(options: ApiClientOptions = {}) {
     this.baseUrl = options.baseUrl ?? "";
+    this.cache = options.cache ?? "no-store";
+    this.credentials = options.credentials ?? "include";
     this.defaultHeaders = options.defaultHeaders;
     this.fetcher = options.fetcher ?? fetch;
     this.getAccessToken = options.getAccessToken;
@@ -51,6 +57,8 @@ export class ApiClient {
     try {
       const body = serializeBody(options.body);
       const requestInit: RequestInit = {
+        cache: this.cache,
+        credentials: this.credentials,
         headers: await this.buildHeaders(options),
         method: options.method ?? "GET",
         signal: abort.signal,
@@ -107,6 +115,23 @@ export class ApiClient {
     });
   }
 
+  patch<TResponse, TBody = unknown>(
+    path: string,
+    body: TBody,
+    options: Omit<ApiRequestOptions<TBody>, "body" | "method" | "path"> = {},
+  ): Promise<TResponse> {
+    return this.request<TResponse, TBody>({
+      ...options,
+      body,
+      method: "PATCH",
+      path,
+    });
+  }
+
+  resolveUrl(path: string): string {
+    return this.buildUrl(path);
+  }
+
   private buildUrl(path: string): string {
     if (/^https?:\/\//u.test(path) || this.baseUrl.length === 0) {
       return path;
@@ -127,7 +152,7 @@ export class ApiClient {
       });
     }
 
-    if (options.body !== undefined && !(options.body instanceof FormData)) {
+    if (options.body !== undefined && !isNativeBody(options.body)) {
       headers.set("Content-Type", "application/json");
     }
 
@@ -142,6 +167,8 @@ export class ApiClient {
 
 export const apiClient = new ApiClient({
   baseUrl: publicEnv.NEXT_PUBLIC_API_BASE_URL,
+  cache: "no-store",
+  credentials: "include",
 });
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
@@ -162,6 +189,14 @@ function serializeBody(body: unknown): BodyInit | undefined {
   }
 
   return JSON.stringify(body);
+}
+
+function isNativeBody(body: unknown): boolean {
+  return (
+    body instanceof FormData ||
+    body instanceof Blob ||
+    body instanceof URLSearchParams
+  );
 }
 
 async function readResponseBody(response: Response): Promise<unknown> {
