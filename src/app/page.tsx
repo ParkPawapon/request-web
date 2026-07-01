@@ -8,6 +8,8 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
+import { publicEnv } from "@/shared/config/env";
+
 const foundationChecks = [
   "Next.js App Router",
   "TypeScript strict mode",
@@ -31,7 +33,7 @@ export default function Home() {
         >
           <Box>
             <Typography component="h1" variant="h3">
-              Request Web
+              {publicEnv.NEXT_PUBLIC_APP_NAME}
             </Typography>
             <Typography color="text.secondary" variant="body1">
               Production frontend foundation for the request platform.
@@ -39,7 +41,7 @@ export default function Home() {
           </Box>
           <Chip
             color="primary"
-            label="local"
+            label={publicEnv.NEXT_PUBLIC_APP_ENV}
             variant="outlined"
           />
         </Stack>
@@ -72,7 +74,9 @@ export default function Home() {
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Typography color="text.secondary" variant="body2">
-                Awaiting centralized runtime configuration.
+                {publicEnv.NEXT_PUBLIC_API_BASE_URL
+                  ? "Configured from NEXT_PUBLIC_API_BASE_URL."
+                  : "Awaiting NEXT_PUBLIC_API_BASE_URL."}
               </Typography>
             </Box>
           </Box>
