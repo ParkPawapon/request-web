@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist_Mono, Kanit } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { publicEnv } from "@/shared/config/env";
+
 import "./globals.css";
 import { AppProviders } from "./providers";
 
@@ -17,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Request Web",
+  title: publicEnv.NEXT_PUBLIC_APP_NAME,
   description: "Production frontend foundation for the request platform.",
 };
 
