@@ -22,6 +22,7 @@ import {
 } from "@/entities/request";
 import { getCsrfToken } from "@/entities/session";
 import { useSession } from "@/entities/session/lib/session-context.client";
+import { resolveApiDownloadUrl } from "@/shared/api/client";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 type DetailMode =
@@ -379,7 +380,7 @@ function AttachmentSection({
                   aria-label={`ดาวน์โหลดไฟล์ ${file.fileName || ""}`}
                   className="inline-flex w-full items-center justify-center rounded-xl border border-[var(--brand-200)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-700)] transition hover:border-[var(--brand-300)] hover:bg-[var(--brand-50)] sm:w-auto md:text-base"
                   download={file.fileName || true}
-                  href={normalizeDownloadPath(file.downloadPath)}
+                  href={resolveApiDownloadUrl(file.downloadPath)}
                 >
                   ดาวน์โหลด
                 </a>
@@ -394,14 +395,6 @@ function AttachmentSection({
 
 function roleLabel(role: unknown): string {
   return String(role).toLowerCase() === "lecturer" ? "อาจารย์" : "นักศึกษา";
-}
-
-function normalizeDownloadPath(path: string | null | undefined): string {
-  if (!path) return "#";
-  if (path.startsWith("/api/v1/")) {
-    return path.replace(/^\/api\/v1/u, "/v1");
-  }
-  return path;
 }
 
 function isUnauthorized(error: unknown): boolean {

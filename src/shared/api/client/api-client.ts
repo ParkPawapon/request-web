@@ -1,5 +1,6 @@
 import { publicEnv } from "@/shared/config/env";
 
+import { normalizeApiPath } from "../endpoints";
 import { normalizeApiError } from "../errors";
 import type { ApiErrorCode } from "../types";
 
@@ -133,11 +134,28 @@ export class ApiClient {
   }
 
   private buildUrl(path: string): string {
-    if (/^https?:\/\//u.test(path) || this.baseUrl.length === 0) {
-      return path;
+    const normalizedPath = normalizeApiPath(path);
+
+    if (normalizedPath === "#") {
+      throw normalizeApiError(
+        {
+          code: "BAD_REQUEST",
+          message: "Invalid API path.",
+          status: 400,
+        },
+        {
+          code: "BAD_REQUEST",
+          fallbackMessage: "Invalid API path.",
+          status: 400,
+        },
+      );
     }
 
-    return `${this.baseUrl.replace(/\/$/u, "")}/${path.replace(/^\//u, "")}`;
+    if (this.baseUrl.length === 0) {
+      return normalizedPath;
+    }
+
+    return `${this.baseUrl.replace(/\/$/u, "")}/${normalizedPath.replace(/^\//u, "")}`;
   }
 
   private async buildHeaders<TBody>(
@@ -173,6 +191,15 @@ export const apiClient = new ApiClient({
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
   return new ApiClient(options);
+}
+
+export function resolveApiDownloadUrl(path: string | null | undefined): string {
+  if (!path) {
+    return "#";
+  }
+
+  const normalizedPath = normalizeApiPath(path);
+  return normalizedPath === "#" ? "#" : apiClient.resolveUrl(normalizedPath);
 }
 
 function serializeBody(body: unknown): BodyInit | undefined {
