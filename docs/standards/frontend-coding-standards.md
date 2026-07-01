@@ -41,6 +41,19 @@
 - Developer-only details must be guarded by development mode.
 - Empty states should name the missing data and the next meaningful action.
 
+## Security
+
+- Do not commit `.env`, tokens, credentials, or private keys.
+- Use only `NEXT_PUBLIC_*` for browser-readable configuration.
+- Keep API endpoint constants in `src/shared/api/endpoints`.
+- Use `normalizeApiPath` or shared API helpers for payload-provided download
+  paths.
+- Use `normalizeInternalRedirect` for redirects that originate from API,
+  query string, or storage values.
+- Do not use `dangerouslySetInnerHTML` unless the value is sanitized and the
+  decision is documented.
+- Do not show raw backend stack traces or internal exception messages to users.
+
 ## Testing
 
 - Add tests for user-visible behavior, not implementation details.
